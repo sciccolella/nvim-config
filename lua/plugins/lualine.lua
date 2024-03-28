@@ -1,14 +1,14 @@
 return {
-  'nvim-lualine/lualine.nvim',
+  "nvim-lualine/lualine.nvim",
   config = function()
-    require('lualine').setup({
+    require("lualine").setup({
       extension = {
-        'neo-tree',
+        "neo-tree",
       },
       options = {
-        theme = 'dracula',
-         globalstatus = true,
-      }
+        theme = "dracula",
+        globalstatus = true,
+      },
     })
-  end
+  end,
 }
