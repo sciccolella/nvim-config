@@ -69,8 +69,16 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+
+-- STATUS
+--  %<%f:%y%{v:lua.vim.lsp.buf_get_clients()}%=\ %m%r%h\ %-15(%l,%c%V%)%b'
+-- set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
+-- vim.o.statusline = [[%<%f %h%m%r %y%=%{v:register} %-14.(%l,%c%V%) %P]]
+-- vim.o.statusline = [[%<%f:%y%{v:lua.vim.lsp.buf_get_clients()}%= %m%r%h %-15(%l,%c%V%)%b']]
+vim.o.statusline = [[%<%f:%y%{g:sl_lsp}%= %m%r%h %-15(%l,%c%V%)%b']]
+
 -- THEME
-require("sct_hi")
+require("sictm_hi")
 
 -- PLUGINS
 -- Bootstrap lazy.nvim
