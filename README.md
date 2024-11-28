@@ -1,16 +1,16 @@
 # Install
 
-## Dependencies
-This config requires `ripgrep` and `fd`
-
-**Install via brew**
-```bash
-brew install ripgrep fd
-```
-
-**Otherwise**
-- `ripgrep`: https://github.com/BurntSushi/ripgrep
-- `fd`: https://github.com/sharkdp/fd
+<!--## Dependencies-->
+<!--This config requires `ripgrep` and `fd`-->
+<!---->
+<!--**Install via brew**-->
+<!--```bash-->
+<!--brew install ripgrep fd-->
+<!--```-->
+<!---->
+<!--**Otherwise**-->
+<!--- `ripgrep`: https://github.com/BurntSushi/ripgrep-->
+<!--- `fd`: https://github.com/sharkdp/fd-->
 
 ## Remove previous config
 ```bash
