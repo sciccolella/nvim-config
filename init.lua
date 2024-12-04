@@ -97,7 +97,7 @@ end
 vim.o.statusline = [[%<%f:%y%{%v:lua._G.sl_lsp()%}%= %m%r%h %-15(%l,%c%V%)%b']]
 
 -- THEME
-require("sictm_hi")
+require("sictm_hi").setup()
 
 -- PLUGINS
 -- Bootstrap lazy.nvim
