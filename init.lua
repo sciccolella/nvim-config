@@ -125,7 +125,7 @@ require("lazy").setup({
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
       ensure_installed = { "bash", "c", "diff", "lua", "luadoc", "markdown", "markdown_inline", "query", "vim", "vimdoc", "python" },
-      auto_install = true, -- Autoinstall languages that are not installed
+      auto_install = false, -- Autoinstall languages that are not installed
       highlight = { enable = true, },
       indent = { enable = true, disable = {} },
     },
