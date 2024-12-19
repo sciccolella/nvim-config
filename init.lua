@@ -179,76 +179,41 @@ require("lazy").setup({
       },
     },
   },
-  { "neovim/nvim-lspconfig", },
   {
-    "hrsh7th/nvim-cmp",
-    dependencies = {
-      {
-        "L3MON4D3/LuaSnip",
-        dependencies = {
-          -- "rafamadriz/friendly-snippets",
-        },
+    "neovim/nvim-lspconfig",
+    dependencies = { "saghen/blink.cmp" },
+  },
+  {
+    "saghen/blink.cmp",
+    -- optional: provides snippets for the snippet source
+    dependencies = { "rafamadriz/friendly-snippets" },
+
+    version = "v0.*",
+
+    opts = {
+      keymap = { preset = "default" },
+
+      appearance = {
+        use_nvim_cmp_as_default = true,
+        -- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
+        -- Adjusts spacing to ensure icons are aligned
+        nerd_font_variant = "mono"
       },
-      "saadparwaiz1/cmp_luasnip",
-      -- 'hrsh7th/cmp-path',
-      -- 'hrsh7th/cmp-buffer',
-      "hrsh7th/cmp-nvim-lsp",
+
+      -- default list of enabled providers defined so that you can extend it
+      -- elsewhere in your config, without redefining it, via `opts_extend`
+      sources = {
+        default = { "lsp", "path", "snippets", "buffer" },
+        -- optionally disable cmdline completions
+        -- cmdline = {},
+      },
+
+      -- experimental signature help support
+      signature = { enabled = true }
     },
-    config = function()
-      -- local has_words_before = function()
-      --   unpack = unpack or table.unpack
-      --   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-      --   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-      -- end
-      --
-
-      local cmp = require "cmp"
-      local luasnip = require "luasnip"
-      luasnip.config.setup {}
-
-      cmp.setup {
-        snippet = {
-          expand = function(args)
-            luasnip.lsp_expand(args.body)
-          end,
-        },
-        window = {
-          -- completion = cmp.config.window.bordered(),
-          documentation = cmp.config.window.bordered(),
-        },
-        formatting = {
-          fields = { "kind", "abbr", "menu" },
-          format = function(entry, vim_item)
-            vim_item.kind = string.format("%s", vim_item.kind)
-            vim_item.menu = ({
-              -- buffer = "[Buffer]",
-              path = "[Path]",
-              nvim_lsp = "[LSP]",
-              luasnip = "[LuaSnip]",
-            })[entry.source.name]
-            return vim_item
-          end,
-        },
-        mapping = cmp.mapping.preset.insert {
-          ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-          ["<C-f>"] = cmp.mapping.scroll_docs(4),
-          ["<C-Space>"] = cmp.mapping.complete(),
-          ["<C-e>"] = cmp.mapping.abort(),
-          ["<C-p>"] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Insert },
-          ["<C-n>"] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Insert },
-          ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-
-        },
-        sources = cmp.config.sources({
-          { name = "nvim_lsp" },
-          { name = "luasnip" },
-        }, {
-          { name = "buffer" },
-          { name = "path" },
-        }),
-
-      }
-    end
+    -- -- allows extending the providers array elsewhere in your config
+    -- -- without having to redefine it
+    -- opts_extend = { "sources.default" }
   },
 })
 
@@ -270,7 +235,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
-local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local capabilities = require('blink.cmp').get_lsp_capabilities()
 require("lspconfig").lua_ls.setup({
   capabilities = capabilities,
   settings = {
