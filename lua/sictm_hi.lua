@@ -72,6 +72,9 @@ function M.setup()
   vim.api.nvim_set_hl(0, "@string.escape", { ctermfg = 190, fg = "#d7ff00" })
   vim.api.nvim_set_hl(0, "@string.escape.c", { link = "@string.escape" })
 
+  vim.api.nvim_set_hl(0, "@label", { ctermfg = 189, fg = "#d7d7ff" })
+  vim.api.nvim_set_hl(0, "@label.c", { link = "@label" })
+
   local sct_keyword = 133
   local sct_keyword_gui = "#af5faf"
   vim.api.nvim_set_hl(0, "Statement", { ctermfg = sct_keyword, fg = sct_keyword_gui })
