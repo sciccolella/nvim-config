@@ -188,13 +188,28 @@ require("lazy").setup({
     -- optional: provides snippets for the snippet source
     dependencies = { "rafamadriz/friendly-snippets" },
 
-    version = "v0.*",
+    version = "v1.0",
 
     opts = {
-      keymap = { preset = "default" },
+      keymap = {
+        preset = "default",
+        ["<C-n>"] = {
+          "select_next",
+          "snippet_forward",
+          "fallback"
+        },
+        ["<C-p>"] = {
+          "select_prev",
+          "snippet_backward",
+          "fallback"
+        },
+        -- maybe these two might be deleted
+        ["<Tab>"] = {},
+        ["<S-Tab>"] = {},
+      },
 
       appearance = {
-        use_nvim_cmp_as_default = true,
+        -- use_nvim_cmp_as_default = true,
         -- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
         -- Adjusts spacing to ensure icons are aligned
         nerd_font_variant = "mono"
@@ -235,7 +250,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
-local capabilities = require('blink.cmp').get_lsp_capabilities()
+local capabilities = require("blink.cmp").get_lsp_capabilities()
 require("lspconfig").lua_ls.setup({
   capabilities = capabilities,
   settings = {
