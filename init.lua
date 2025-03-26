@@ -292,13 +292,14 @@ require("lspconfig").gopls.setup({})
 
 -- Function to format the buffer and restore the cursor position
 function _G.format_and_restore_cursor_shfmt()
-  local save_cursor = vim.fn.getpos(".")  -- Save cursor position
-  vim.cmd("%!shfmt -i 2 -ci")              -- Run shfmt to format the buffer
-  vim.fn.setpos(".", save_cursor)          -- Restore cursor position
+  local save_cursor = vim.fn.getpos(".") -- Save cursor position
+  vim.cmd("%!shfmt -i 2 -ci")            -- Run shfmt to format the buffer
+  vim.fn.setpos(".", save_cursor)        -- Restore cursor position
 end
-require("lspconfig").bashls.setup{
+
+require("lspconfig").bashls.setup {
   on_attach = function(client, bufnr)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>lf',
+    vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>lf",
       "<cmd>lua _G.format_and_restore_cursor_shfmt()<CR>",
       { noremap = true, silent = true })
   end,
