@@ -224,7 +224,13 @@ require("lazy").setup({
       },
 
       -- experimental signature help support
-      signature = { enabled = true }
+      signature = { enabled = true },
+      fuzzy = {
+        implementation = "prefer_rust_with_warning",
+        prebuilt_binaries = {
+          download = true,
+        }
+      }
     },
     -- -- allows extending the providers array elsewhere in your config
     -- -- without having to redefine it
