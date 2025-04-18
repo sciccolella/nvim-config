@@ -18,6 +18,8 @@ vim.opt.signcolumn = "yes" -- Keep signcolumn on by default
 vim.opt.cursorline = true  -- Show which line your cursor is on
 vim.opt.scrolloff = 10     -- Minimal number of screen lines to keep above and below the cursor.
 
+
+vim.o.winborder = "solid"
 -- Enable break indent
 vim.opt.breakindent = true
 
@@ -46,6 +48,8 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
+vim.diagnostic.config({ virtual_lines = { current_line = true } })
+-- vim.diagnostic.config({ virtual_lines = { current_line = false } })
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -55,6 +59,7 @@ vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left wind
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
+
 
 -- thanks @primeagen
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
@@ -96,167 +101,129 @@ vim.o.statusline = [[%<%f:%y%{%v:lua._G.sl_lsp()%}%= %m%r%h %-15(%l,%c%V%)%b']]
 require("sictm_hi").setup()
 
 -- PLUGINS
--- Bootstrap lazy.nvim
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-  if vim.v.shell_error ~= 0 then
-    vim.api.nvim_echo({
-      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out,                            "WarningMsg" },
-      { "\nPress any key to exit..." },
-    }, true, {})
-    vim.fn.getchar()
-    os.exit(1)
-  end
+-- Clone 'mini.nvim' manually in a way that it gets managed by 'mini.deps'
+local path_package = vim.fn.stdpath("data") .. "/site/"
+local mini_path = path_package .. "pack/deps/start/mini.nvim"
+if not vim.loop.fs_stat(mini_path) then
+  vim.cmd('echo "Installing `mini.nvim`" | redraw')
+  local clone_cmd = {
+    "git", "clone", "--filter=blob:none",
+    "https://github.com/echasnovski/mini.nvim", mini_path
+  }
+  vim.fn.system(clone_cmd)
+  vim.cmd("packadd mini.nvim | helptags ALL")
+  vim.cmd('echo "Installed `mini.nvim`" | redraw')
 end
-vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({
-  { -- Highlight, edit, and navigate code
-    "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
-    main = "nvim-treesitter.configs", -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = { "bash", "c", "diff", "lua", "luadoc", "markdown", "markdown_inline", "query", "vim", "vimdoc", "python" },
-      auto_install = false, -- Autoinstall languages that are not installed
-      highlight = { enable = true, },
-      indent = { enable = true, disable = {} },
-    },
-  },
-  {
-    "folke/which-key.nvim",
-    event = "VeryLazy",
-    init = function()
-      vim.o.timeout = true
-      vim.o.timeoutlen = 300
-    end,
-    opts = {
-      defaults = {
-        ["<leader>l"] = { name = "+LSP" },
-      },
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-      -- refer to the configuration section below
-    },
-  },
-  {
-    "nvim-telescope/telescope.nvim",
-    branch = "0.1.x",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      require("telescope").setup {
-      }
+-- Set up 'mini.deps' (customize to your liking)
+require("mini.deps").setup({ path = { package = path_package } })
 
-      local builtin = require("telescope.builtin")
-      vim.keymap.set("n", "<C-p>", builtin.find_files, {})
-      vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
+local add = require("mini.deps").add
 
-      -- This is from kickstart.nvim
-      -- See `:help telescope.builtin`
-      vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
-      vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "[S]earch [K]eymaps" })
-      vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
-      vim.keymap.set("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
-      vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
-      vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
-      vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
-      vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
-      vim.keymap.set("n", "<leader>sm", builtin.marks, { desc = "[S]earch [m]arks" })
-      vim.keymap.set("n", "<leader>sb", builtin.buffers, { desc = "[S]earch [b]uffer" })
-      vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-    end
-  },
-  {
-    "folke/todo-comments.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    opts = {
-      signs = false,
-      highlight = {
-        keyword = "bg",
-      },
-    },
-  },
-  {
-    "neovim/nvim-lspconfig",
-    dependencies = { "saghen/blink.cmp" },
-  },
-  {
-    "saghen/blink.cmp",
-    -- optional: provides snippets for the snippet source
-    dependencies = { "rafamadriz/friendly-snippets" },
-
-    version = "v1.0",
-
-    opts = {
-      keymap = {
-        preset = "default",
-        ["<C-n>"] = {
-          "select_next",
-          "snippet_forward",
-          "fallback"
-        },
-        ["<C-p>"] = {
-          "select_prev",
-          "snippet_backward",
-          "fallback"
-        },
-        -- maybe these two might be deleted
-        ["<Tab>"] = {},
-        ["<S-Tab>"] = {},
-      },
-
-      appearance = {
-        -- use_nvim_cmp_as_default = true,
-        -- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
-        -- Adjusts spacing to ensure icons are aligned
-        nerd_font_variant = "mono"
-      },
-
-      -- default list of enabled providers defined so that you can extend it
-      -- elsewhere in your config, without redefining it, via `opts_extend`
-      sources = {
-        default = { "lsp", "path", "snippets", "buffer" },
-        -- optionally disable cmdline completions
-        -- cmdline = {},
-      },
-
-      -- experimental signature help support
-      signature = { enabled = true },
-      fuzzy = {
-        implementation = "prefer_rust_with_warning",
-        prebuilt_binaries = {
-          download = true,
-        }
-      }
-    },
-    -- -- allows extending the providers array elsewhere in your config
-    -- -- without having to redefine it
-    -- opts_extend = { "sources.default" }
-  },
+add({
+  source = "neovim/nvim-lspconfig",
+})
+add({
+  source = "nvim-treesitter/nvim-treesitter",
+  -- Perform action after every checkout
+  hooks = { post_checkout = function() vim.cmd("TSUpdate") end },
+})
+require("nvim-treesitter.configs").setup({
+  ensure_installed = { "bash", "c", "diff", "lua", "luadoc", "markdown", "markdown_inline", "query", "vim", "vimdoc", "python" },
+  highlight = { enable = true },
 })
 
+add({
+  source = "folke/todo-comments.nvim",
+  depends = { "nvim-lua/plenary.nvim" },
+})
+require("mini.deps").now(function()
+  vim.cmd("packadd todo-comments.nvim")
+  require("todo-comments").setup({
+    signs = false,
+    highlight = {
+      keyword = "bg",
+    },
+  })
+end)
 
+add({
+  source = "ibhagwan/fzf-lua",
+  depends = { "echasnovski/mini.icons" },
+})
+require("mini.deps").now(function()
+  -- Ensure fzf-lua is loaded
+  vim.cmd("packadd fzf-lua")
+
+  -- Now safely setup fzf-lua
+  require("fzf-lua").setup({
+    -- Any custom opts here
+  })
+  -- Add key mappings
+  -- vim.api.nvim_set_keymap("n", "<F1>", [[<Cmd>lua require"fzf-lua".help_tags()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<C-\\>", [[<Cmd>lua require"fzf-lua".builtin()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<leader>ss", [[<Cmd>lua require"fzf-lua".builtin()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<C-k>", [[<Cmd>lua require"fzf-lua".buffers()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<leader>sb", [[<Cmd>lua require"fzf-lua".buffers()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<C-p>", [[<Cmd>lua require"fzf-lua".files()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<leader>sf", [[<Cmd>lua require"fzf-lua".files()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<C-l>", [[<Cmd>lua require"fzf-lua".live_grep_glob()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<leader>sl", [[<Cmd>lua require"fzf-lua".live_grep_glob()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<C-g>", [[<Cmd>lua require"fzf-lua".grep_project()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<leader>sg", [[<Cmd>lua require"fzf-lua".grep_project()<CR>]], {})
+  -- NOTE: C-?
+  vim.api.nvim_set_keymap("n", "<leader>sd", [[<Cmd>lua require"fzf-lua".diagnostics_document()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<leader>sm", [[<Cmd>lua require"fzf-lua".marks()<CR>]], {})
+  vim.api.nvim_set_keymap("n", "<leader>s.", [[<Cmd>lua require"fzf-lua".oldfiles()<CR>]], {})
+--       vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+end)
+--   {
+--     "folke/which-key.nvim",
+--     event = "VeryLazy",
+--     init = function()
+--       vim.o.timeout = true
+--       vim.o.timeoutlen = 300
+--     end,
+--     opts = {
+--       defaults = {
+--         ["<leader>l"] = { name = "+LSP" },
+--       },
+--       -- your configuration comes here
+--       -- or leave it empty to use the default settings
+--       -- refer to the configuration section below
+--     },
+--   },
+--   {
+--     "stevearc/oil.nvim",
+--     opts = {},
+--     -- Optional dependencies
+--     -- dependencies = { { "echasnovski/mini.icons", opts = {} } },
+--     -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+--     lazy = false,
+--     config = function()
+--       require("oil").setup({
+--         default_file_explorer = false,
+--       })
+--     end
+--   },
+-- })
 
 vim.api.nvim_create_autocmd("LspAttach", {
-  desc = "LSP actions",
-  callback = function(event)
-    -- local opts = { buffer = event.buf }
-
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
-    vim.keymap.set("n", "<leader>lK", vim.lsp.buf.hover, { desc = "Display hover information" })
-    vim.keymap.set("n", "<leader>lgd", vim.lsp.buf.definition, { desc = "[g]o to [d]efinition" })
-    vim.keymap.set("n", "<leader>lgD", vim.lsp.buf.declaration, { desc = "[g]o to [D]eclaration" })
-    vim.keymap.set("n", "<leader>lgi", vim.lsp.buf.implementation, { desc = "[g]o to [i]mplementation" })
-    vim.keymap.set({ "n", "v" }, "<leader>la", vim.lsp.buf.code_action, { desc = "Code [a]ction" })
-    vim.keymap.set("n", "<leader>lr", vim.lsp.buf.rename, { desc = "[r]ename token" })
-    vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "[f]ormat buffer" })
+  callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if client:supports_method("textDocument/completion") then
+      vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = false })
+    end
+    if client:supports_method("textDocument/formatting") then
+      vim.keymap.set("n", "grf", function()
+          vim.lsp.buf.format({ async = true })
+        end,
+        { desc = "Format file", buffer = ev.buf })
+    end
   end,
 })
 
-local capabilities = require("blink.cmp").get_lsp_capabilities()
+local capabilities = {}
 require("lspconfig").lua_ls.setup({
   capabilities = capabilities,
   settings = {
@@ -288,6 +255,8 @@ require("lspconfig").clangd.setup({
   },
 })
 
+require("lspconfig").ruff.setup({})
+require("lspconfig").zls.setup({})
 require("lspconfig").gopls.setup({})
 
 -- Function to format the buffer and restore the cursor position
