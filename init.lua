@@ -3,6 +3,7 @@ vim.g.maplocalleader = " "
 vim.g.have_nerd_font = true
 vim.opt.number = true
 vim.opt.relativenumber = true
+vim.opt.clipboard = ""
 
 vim.cmd("set expandtab")
 vim.cmd("set tabstop=2")
@@ -55,10 +56,10 @@ vim.diagnostic.config({ virtual_lines = { current_line = true } })
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
-vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
-vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
-vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
+-- vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
+-- vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
+-- vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
+-- vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
 -- Snippet jump with C-n/C-p instead of Tab/S-Tab
 local function set_snippet_jump(direction, key)
@@ -82,6 +83,7 @@ set_snippet_jump(-1, "<C-p>")
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
+vim.keymap.set({ "n", "x" }, "gy", '"+y', { desc = "Copy to system clipboard" })
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -178,21 +180,28 @@ require("mini.deps").now(function()
   })
   -- Add key mappings
   -- vim.api.nvim_set_keymap("n", "<F1>", [[<Cmd>lua require"fzf-lua".help_tags()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<C-\\>", [[<Cmd>lua require"fzf-lua".builtin()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<leader>ss", [[<Cmd>lua require"fzf-lua".builtin()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<C-k>", [[<Cmd>lua require"fzf-lua".buffers()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<leader>sb", [[<Cmd>lua require"fzf-lua".buffers()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<C-p>", [[<Cmd>lua require"fzf-lua".files()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<leader>sf", [[<Cmd>lua require"fzf-lua".files()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<C-l>", [[<Cmd>lua require"fzf-lua".live_grep_glob()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<leader>sl", [[<Cmd>lua require"fzf-lua".live_grep_glob()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<C-g>", [[<Cmd>lua require"fzf-lua".grep_project()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<leader>sg", [[<Cmd>lua require"fzf-lua".grep_project()<CR>]], {})
-  -- NOTE: C-?
-  vim.api.nvim_set_keymap("n", "<leader>sd", [[<Cmd>lua require"fzf-lua".diagnostics_document()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<leader>sm", [[<Cmd>lua require"fzf-lua".marks()<CR>]], {})
-  vim.api.nvim_set_keymap("n", "<leader>s.", [[<Cmd>lua require"fzf-lua".oldfiles()<CR>]], {})
---       vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+  vim.api.nvim_set_keymap("n", "<C-\\>", [[<Cmd>lua require"fzf-lua".builtin()<CR>]], { desc = "builtin" })
+  vim.api.nvim_set_keymap("n", "<leader>ss", [[<Cmd>lua require"fzf-lua".builtin()<CR>]], { desc = "builtin" })
+  vim.api.nvim_set_keymap("n", "<C-k>", [[<Cmd>lua require"fzf-lua".buffers()<CR>]], { desc = "buffers" })
+  vim.api.nvim_set_keymap("n", "<leader>sb", [[<Cmd>lua require"fzf-lua".buffers()<CR>]], { desc = "buffers" })
+  vim.api.nvim_set_keymap("n", "<C-p>", [[<Cmd>lua require"fzf-lua".files()<CR>]], { desc = "files" })
+  vim.api.nvim_set_keymap("n", "<leader>sf", [[<Cmd>lua require"fzf-lua".files()<CR>]], { desc = "files" })
+  vim.api.nvim_set_keymap("n", "<C-l>", [[<Cmd>lua require"fzf-lua".live_grep_glob()<CR>]], { desc = "live_grep_glob" })
+  vim.api.nvim_set_keymap("n", "<leader>sl", [[<Cmd>lua require"fzf-lua".live_grep_glob()<CR>]],
+    { desc = "live_grep_glob" })
+  vim.api.nvim_set_keymap("n", "<C-g>", [[<Cmd>lua require"fzf-lua".grep_project()<CR>]], { desc = "grep_project" })
+  vim.api.nvim_set_keymap("n", "<leader>sg", [[<Cmd>lua require"fzf-lua".grep_project()<CR>]], { desc = "grep_project" })
+  vim.api.nvim_set_keymap("n", "<C-n>", [[<Cmd>lua require"fzf-lua".diagnostics_document()<CR>]],
+    { desc = "diagnostics" })
+  vim.api.nvim_set_keymap("n", "<leader>sd", [[<Cmd>lua require"fzf-lua".diagnostics_document()<CR>]],
+    { desc = "diagnostics" })
+  vim.api.nvim_set_keymap("n", "<C-m>", [[<Cmd>lua require"fzf-lua".marks()<CR>]], { desc = "marks" })
+  vim.api.nvim_set_keymap("n", "<leader>sm", [[<Cmd>lua require"fzf-lua".marks()<CR>]], { desc = "marks" })
+  vim.api.nvim_set_keymap("n", "<leader>s.", [[<Cmd>lua require"fzf-lua".oldfiles()<CR>]], { desc = "oldfiles" })
+  vim.api.nvim_set_keymap("n", "<leader>sc", [[<Cmd>lua require"fzf-lua".files({cwd=vim.fn.stdpath("config")})<CR>]],
+    { desc = "files(config)" })
+  vim.api.nvim_set_keymap("n", "<leader>scc", [[<Cmd>lua require"fzf-lua".live_grep({cwd=vim.fn.stdpath("config")})<CR>]],
+    { desc = "grep(config)" })
 end)
 --   {
 --     "folke/which-key.nvim",
@@ -264,13 +273,17 @@ require("lspconfig").lua_ls.setup({
   },
 })
 
-require("lspconfig").clangd.setup({
-  capabilities = capabilities,
+
+vim.lsp.config("clangd", {
   cmd = {
     "clangd",
     "--offset-encoding=utf-16",
   },
 })
+vim.lsp.enable({ "clangd" })
+-- require("lspconfig").clangd.setup({
+--   capabilities = capabilities,
+-- })
 
 require("lspconfig").ruff.setup({})
 require("lspconfig").zls.setup({})
@@ -290,3 +303,41 @@ require("lspconfig").bashls.setup {
       { noremap = true, silent = true })
   end,
 }
+
+vim.lsp.config("texlab", {
+  settings = {
+    texlab = {
+      forwardSearch = {
+        executable = "/Applications/Skim.app/Contents/SharedSupport/displayline",
+        args = { "-r", "%l", "%p", "%f" }
+      },
+      build = {
+        executable = "tectonic",
+        args = {
+          "-X",
+          "compile",
+          "%f",
+          "--synctex",
+          "--keep-logs",
+          "--keep-intermediates"
+        }
+      }
+    }
+  },
+})
+vim.lsp.enable("texlab")
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if client and client.name == "texlab" then
+      vim.keymap.set("n", "glb", "<Cmd>TexlabBuild<CR>",
+        { noremap = true, silent = true, buffer = ev.buf, desc = "Build PDF (Texlab)" }
+      )
+
+      vim.keymap.set("n", "glf", "<Cmd>TexlabForward<CR>",
+        { noremap = true, silent = true, buffer = ev.buf, desc = "Forward (Texlab)" }
+      )
+    end
+  end,
+})
